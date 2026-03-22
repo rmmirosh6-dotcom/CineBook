@@ -81,7 +81,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       final movieId = widget.checkoutData['movieId'] as String;
       final selectedSeats = widget.checkoutData['selectedSeats'] as List<String>;
       final isSplitPayment = widget.checkoutData['isSplitPayment'] as bool;
-      final splitEmail = widget.checkoutData['splitEmail'] as String;
+      final splitEmails = widget.checkoutData['splitEmails'] as List<String>;
 
       final userId = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
 
@@ -104,7 +104,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         isActive: true,
         status: isSplitPayment ? 'Pending Split Payment' : 'Valid',
         isSplitPayment: isSplitPayment,
-        splitWithEmails: isSplitPayment ? [splitEmail] : [],
+        splitWithEmails: isSplitPayment ? splitEmails : [],
       );
 
       // 2. Process secure transaction through Mock Payment Gateway
