@@ -82,6 +82,25 @@ class HomeScreen extends StatelessWidget {
           if (viewModel.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
+          if (viewModel.errorMessage != null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.cloud_off, size: 64, color: AppColors.textSecondary),
+                    const SizedBox(height: 16),
+                    Text(
+                      viewModel.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
           return RefreshIndicator(
             onRefresh: () async {
               // mock refresh
@@ -212,17 +231,31 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.grey.shade300,
-                    image: DecorationImage(
-                      // Uses a local asset if exists, else fallback color is grey
-                      image: AssetImage(movie.posterUrl),
-                      fit: BoxFit.cover,
-                      onError: (_, __) {}, // Ignore errors for missing mock images
-                    ),
+                  ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: movie.posterUrl.startsWith('http')
+                      ? Image.network(
+                          movie.posterUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: Colors.grey.shade300,
+                            child: const Center(child: Icon(Icons.movie, size: 48, color: Colors.white)),
+                          ),
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Container(
+                              color: Colors.grey.shade200,
+                              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            );
+                          },
+                        )
+                      : Container(
+                          color: Colors.grey.shade300,
+                          child: const Center(child: Icon(Icons.movie, size: 48, color: Colors.white)),
+                        ),
                   ),
                 ),
                 Positioned(

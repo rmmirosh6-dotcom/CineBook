@@ -47,8 +47,8 @@ class AppRoutes {
       GoRoute(
         path: '/cinemas/:movieId',
         builder: (context, state) {
-          final movieId = state.pathParameters['movieId'] ?? '1';
-          return CinemaSelectorScreen(movieId: movieId);
+          final movie = state.extra as Movie;
+          return CinemaSelectorScreen(movie: movie);
         },
       ),
       GoRoute(

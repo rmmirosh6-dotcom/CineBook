@@ -11,10 +11,10 @@ class MovieDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Find the movie from the existing ViewModel
+    // Use allMovies (unfiltered) so movies not in the current toggle are still found
     final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-    final allMovies = viewModel.currentMovies.isNotEmpty 
-        ? viewModel.currentMovies 
+    final allMovies = viewModel.allMovies.isNotEmpty
+        ? viewModel.allMovies
         : [Movie(id: '1', title: 'Loading...', genre: '', duration: '', rating: 0.0, posterUrl: '', synopsis: '', isNowShowing: true)];
     final movie = allMovies.firstWhere((m) => m.id == id, orElse: () => allMovies.first);
 
@@ -31,13 +31,18 @@ class MovieDetailsScreen extends StatelessWidget {
                 children: [
                   Container(
                     color: Colors.grey.shade400,
-                    child: Image.asset(
-                      movie.posterUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Center(
-                        child: Icon(Icons.movie, size: 64, color: Colors.white),
-                      ),
-                    ),
+                    child: movie.posterUrl.startsWith('http')
+                      ? Image.network(
+                          movie.posterUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          errorBuilder: (_, __, ___) => const Center(
+                            child: Icon(Icons.movie, size: 64, color: Colors.white),
+                          ),
+                        )
+                      : const Center(
+                          child: Icon(Icons.movie, size: 64, color: Colors.white),
+                        ),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -142,7 +147,7 @@ class MovieDetailsScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        context.push('/cinemas/${movie.id}');
+                        context.push('/cinemas/${movie.id}', extra: movie);
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 56),

@@ -6,8 +6,8 @@ import 'cinema_map_screen.dart';
 import '../services/database_service.dart';
 
 class CinemaSelectorScreen extends StatelessWidget {
-  final String movieId;
-  const CinemaSelectorScreen({Key? key, required this.movieId}) : super(key: key);
+  final Movie movie;
+  const CinemaSelectorScreen({Key? key, required this.movie}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +17,9 @@ class CinemaSelectorScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(
-          children: const [
-            Text('Velocity Strike', style: TextStyle(fontSize: 18)),
-            Text('Action / Thriller', style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),
+          children: [
+            Text(movie.title, style: const TextStyle(fontSize: 18)),
+            Text(movie.genre, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),
           ],
         ),
       ),
@@ -184,7 +184,7 @@ class CinemaSelectorScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         context.push('/seat-selection', extra: {
-          'movieId': movieId,
+          'movieId': movie.id,
           'cinema': cinema,
           'showtime': showtime,
         });
