@@ -44,24 +44,6 @@ class HomeScreen extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cinemas Re-seeded!')));
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.map_outlined),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const CinemaMapScreen()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.confirmation_number_outlined),
-            onPressed: () {
-              context.push('/tickets');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              context.push('/profile');
-            },
-          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),

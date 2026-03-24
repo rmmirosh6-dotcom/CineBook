@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../views/welcome_screen.dart';
 import '../views/login_screen.dart';
 import '../views/signup_screen.dart';
+import '../views/main_screen.dart';
 import '../views/home_screen.dart';
 import '../views/movie_details_screen.dart';
 import '../views/cinema_selector_screen.dart';
@@ -35,7 +36,7 @@ class AppRoutes {
       ),
       GoRoute(
         path: home,
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const MainScreen(),
       ),
       GoRoute(
         path: '/movie/:id',
