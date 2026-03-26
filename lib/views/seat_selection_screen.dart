@@ -136,10 +136,9 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: InkWell(
               onTap: () {
-                // Show AR preview
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Opening AR View... (Mock)')),
-                );
+                // Show AR preview with the first selected seat or default to 'C4'
+                final selectedSeat = _selectedSeats.isNotEmpty ? _selectedSeats.first : 'C4';
+                context.push('/ar-view', extra: {'selectedSeat': selectedSeat});
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
