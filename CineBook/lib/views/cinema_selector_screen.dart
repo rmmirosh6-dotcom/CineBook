@@ -13,8 +13,9 @@ class CinemaSelectorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final DatabaseService _db = DatabaseService();
 
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
         title: Column(
           children: const [
@@ -26,7 +27,7 @@ class CinemaSelectorScreen extends StatelessWidget {
       body: Column(
         children: [
           Container(
-            color: AppColors.primary,
+            color: colorScheme.surface,
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -90,26 +91,12 @@ class CinemaSelectorScreen extends StatelessWidget {
   }
 
   Widget _buildDateChip(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isSelected ? Colors.white : Colors.white54),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_today, size: 16, color: isSelected ? AppColors.primary : Colors.white),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? AppColors.primary : Colors.white,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (bool selected) {},
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      shape: const StadiumBorder(),
     );
   }
 
@@ -147,12 +134,12 @@ class CinemaSelectorScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   child: Row(
                     children: [
                       const Icon(Icons.location_on, size: 14, color: AppColors.textSecondary),
@@ -181,6 +168,7 @@ class CinemaSelectorScreen extends StatelessWidget {
   }
 
   Widget _buildShowtimeCard(BuildContext context, Cinema cinema, Showtime showtime) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () {
         context.push('/seat-selection', extra: {
@@ -193,7 +181,8 @@ class CinemaSelectorScreen extends StatelessWidget {
         width: 120, // Increased from 100 to fix layout overflow
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          color: colorScheme.surface,
+          border: Border.all(color: colorScheme.outlineVariant),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -210,7 +199,7 @@ class CinemaSelectorScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: showtime.format == 'IMAX' ? AppColors.secondary : Colors.grey.shade200,
+                color: showtime.format == 'IMAX' ? colorScheme.tertiaryContainer : colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(

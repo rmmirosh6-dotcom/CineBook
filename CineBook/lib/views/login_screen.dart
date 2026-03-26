@@ -29,18 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: colorScheme.primary,
       appBar: AppBar(
-        title: const Text('CineBook'),
+        title: const Text('CineBook', style: TextStyle(color: Colors.white)),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
       body: Container(
         margin: const EdgeInsets.only(top: 24),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+          color: colorScheme.background,
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(32),
             topRight: Radius.circular(32),
           ),
@@ -56,11 +57,11 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Login', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 18)),
+                  Text('Login', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface, fontSize: 18)),
                   const SizedBox(width: 32),
                   GestureDetector(
                     onTap: () => context.pushReplacement('/signup'),
-                    child: Text('Sign Up', style: TextStyle(fontWeight: FontWeight.normal, color: AppColors.textSecondary, fontSize: 18)),
+                    child: Text('Sign Up', style: TextStyle(fontWeight: FontWeight.normal, color: colorScheme.onSurfaceVariant, fontSize: 18)),
                   ),
                 ],
               ),
@@ -99,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
               
-              ElevatedButton(
+              FilledButton(
                 onPressed: authViewModel.isLoading 
                   ? null 
                   : () async {
@@ -129,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
               
               // Social Mock
-              const Center(child: Text('Or continue with', style: TextStyle(color: AppColors.textSecondary))),
+              const Center(child: Text('Or continue with', style: TextStyle(color: Colors.grey))),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -137,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: OutlinedButton.icon(
                       onPressed: () => context.go('/home'), // Mock bypass
                       icon: const Icon(Icons.g_mobiledata, color: Colors.red),
-                      label: const Text('Google', style: TextStyle(color: AppColors.textPrimary)),
+                      label: Text('Google', style: TextStyle(color: colorScheme.onSurface)),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -145,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: OutlinedButton.icon(
                       onPressed: () => context.go('/home'), // Mock bypass
                       icon: const Icon(Icons.facebook, color: Colors.blue),
-                      label: const Text('Facebook', style: TextStyle(color: AppColors.textPrimary)),
+                      label: Text('Facebook', style: TextStyle(color: colorScheme.onSurface)),
                     ),
                   ),
                 ],

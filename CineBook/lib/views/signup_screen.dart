@@ -30,18 +30,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: colorScheme.primary,
       appBar: AppBar(
-        title: const Text('CineBook'),
+        title: const Text('CineBook', style: TextStyle(color: Colors.white)),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
       body: Container(
         margin: const EdgeInsets.only(top: 24),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+          color: colorScheme.background,
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(32),
             topRight: Radius.circular(32),
           ),
@@ -59,10 +60,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 children: [
                   GestureDetector(
                     onTap: () => context.pushReplacement('/login'),
-                    child: Text('Login', style: TextStyle(fontWeight: FontWeight.normal, color: AppColors.textSecondary, fontSize: 18)),
+                    child: Text('Login', style: TextStyle(fontWeight: FontWeight.normal, color: colorScheme.onSurfaceVariant, fontSize: 18)),
                   ),
                   const SizedBox(width: 32),
-                  Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 18)),
+                  Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface, fontSize: 18)),
                 ],
               ),
               const SizedBox(height: 48),
@@ -110,13 +111,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Checkbox(value: false, onChanged: (v){}),
                   Expanded(
                     child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      text: TextSpan(
+                        style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
                         children: [
-                          TextSpan(text: 'I agree to the '),
-                          TextSpan(text: 'Terms of Service', style: TextStyle(color: AppColors.primary)),
-                          TextSpan(text: ' and '),
-                          TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppColors.primary)),
+                          const TextSpan(text: 'I agree to the '),
+                          TextSpan(text: 'Terms of Service', style: TextStyle(color: colorScheme.primary)),
+                          const TextSpan(text: ' and '),
+                          TextSpan(text: 'Privacy Policy', style: TextStyle(color: colorScheme.primary)),
                         ],
                       ),
                     ),
@@ -125,7 +126,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 24),
               
-              ElevatedButton(
+              FilledButton(
                 onPressed: authViewModel.isLoading 
                   ? null 
                   : () async {

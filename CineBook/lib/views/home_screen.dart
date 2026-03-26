@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -42,24 +42,6 @@ class HomeScreen extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Re-seeding Cinemas...')));
               await SeedService().seedDatabase();
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cinemas Re-seeded!')));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.map_outlined),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const CinemaMapScreen()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.confirmation_number_outlined),
-            onPressed: () {
-              context.push('/tickets');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              context.push('/profile');
             },
           ),
         ],
@@ -138,11 +120,12 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildToggleSwitch(BuildContext context, HomeViewModel viewModel) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: colorScheme.surfaceVariant.withOpacity(0.4),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
@@ -153,18 +136,18 @@ class HomeScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: viewModel.showNowShowing ? Colors.white : Colors.transparent,
+                    color: viewModel.showNowShowing ? colorScheme.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: viewModel.showNowShowing
-                        ? [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))]
+                        ? [BoxShadow(color: colorScheme.shadow.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))]
                         : [],
                   ),
                   child: Center(
                     child: Text(
                       'Now Showing',
                       style: TextStyle(
-                        fontWeight: viewModel.showNowShowing ? FontWeight.bold : FontWeight.normal,
-                        color: viewModel.showNowShowing ? AppColors.textPrimary : AppColors.textSecondary,
+                        fontWeight: viewModel.showNowShowing ? FontWeight.w600 : FontWeight.w500,
+                        color: viewModel.showNowShowing ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -177,18 +160,18 @@ class HomeScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: !viewModel.showNowShowing ? Colors.white : Colors.transparent,
+                    color: !viewModel.showNowShowing ? colorScheme.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: !viewModel.showNowShowing
-                        ? [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))]
+                        ? [BoxShadow(color: colorScheme.shadow.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))]
                         : [],
                   ),
                   child: Center(
                     child: Text(
                       'Upcoming',
                       style: TextStyle(
-                        fontWeight: !viewModel.showNowShowing ? FontWeight.bold : FontWeight.normal,
-                        color: !viewModel.showNowShowing ? AppColors.textPrimary : AppColors.textSecondary,
+                        fontWeight: !viewModel.showNowShowing ? FontWeight.w600 : FontWeight.w500,
+                        color: !viewModel.showNowShowing ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -202,77 +185,87 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildMovieCard(BuildContext context, Movie movie) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () {
         context.push('/movie/${movie.id}');
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.grey.shade300,
-                    image: DecorationImage(
-                      // Uses a local asset if exists, else fallback color is grey
-                      image: AssetImage(movie.posterUrl),
-                      fit: BoxFit.cover,
-                      onError: (_, __) {}, // Ignore errors for missing mock images
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Card(
+        // MD3 card automatically applies shape, colors, and subtle elevation from AppBarTheme/CardTheme
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.secondary,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.star, size: 14, color: Colors.black),
-                        const SizedBox(width: 4),
-                        Text(
-                          movie.rating.toString(),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                      ],
+                      color: colorScheme.surfaceVariant,
+                      image: DecorationImage(
+                        image: AssetImage(movie.posterUrl),
+                        fit: BoxFit.cover,
+                        onError: (_, __) {}, 
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            movie.title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            movie.genre,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const Icon(Icons.access_time, size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                movie.duration,
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.star, size: 14, color: Colors.black),
+                          const SizedBox(width: 4),
+                          Text(
+                            movie.rating.toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movie.title,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSurface),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    movie.genre,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time, size: 14, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      Text(
+                        movie.duration,
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

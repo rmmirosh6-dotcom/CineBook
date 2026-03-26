@@ -38,7 +38,8 @@ class _CinemaMapScreenState extends State<CinemaMapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nearby Cinemas'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.background,
+        elevation: 0,
       ),
       body: StreamBuilder<List<Cinema>>(
         stream: _db.getCinemasStream(),

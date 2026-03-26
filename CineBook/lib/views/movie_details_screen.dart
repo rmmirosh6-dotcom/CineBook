@@ -18,8 +18,9 @@ class MovieDetailsScreen extends StatelessWidget {
         : [Movie(id: '1', title: 'Loading...', genre: '', duration: '', rating: 0.0, posterUrl: '', synopsis: '', isNowShowing: true)];
     final movie = allMovies.firstWhere((m) => m.id == id, orElse: () => allMovies.first);
 
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.background,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -30,7 +31,7 @@ class MovieDetailsScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Container(
-                    color: Colors.grey.shade400,
+                    color: colorScheme.surfaceVariant,
                     child: Image.asset(
                       movie.posterUrl,
                       fit: BoxFit.cover,
@@ -55,15 +56,15 @@ class MovieDetailsScreen extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppColors.secondary,
+                        color: colorScheme.secondaryContainer,
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.play_arrow, color: Colors.black),
-                          SizedBox(width: 8),
-                          Text('Watch Trailer', style: TextStyle(fontWeight: FontWeight.bold)),
+                        children: [
+                          Icon(Icons.play_arrow, color: colorScheme.onSecondaryContainer),
+                          const SizedBox(width: 8),
+                          Text('Watch Trailer', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer)),
                         ],
                       ),
                     ),
@@ -78,12 +79,15 @@ class MovieDetailsScreen extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(32),
                   topRight: Radius.circular(32),
                 ),
+                boxShadow: [
+                  BoxShadow(color: colorScheme.shadow.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))
+                ],
               ),
               transform: Matrix4.translationValues(0, -32, 0),
               child: Padding(
@@ -114,14 +118,14 @@ class MovieDetailsScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.secondary,
+                            color: colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.star, size: 16),
+                              Icon(Icons.star, size: 16, color: colorScheme.onSecondaryContainer),
                               const SizedBox(width: 4),
-                              Text('${movie.rating}/10', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text('${movie.rating}/10', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer)),
                             ],
                           ),
                         ),
@@ -140,11 +144,11 @@ class MovieDetailsScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
+                    FilledButton(
                       onPressed: () {
                         context.push('/cinemas/${movie.id}');
                       },
-                      style: ElevatedButton.styleFrom(
+                      style: FilledButton.styleFrom(
                         minimumSize: const Size(double.infinity, 56),
                       ),
                       child: const Text('Book Tickets'),
@@ -178,8 +182,8 @@ class MovieDetailsScreen extends StatelessWidget {
                               children: [
                                 CircleAvatar(
                                   radius: 30,
-                                  backgroundColor: Colors.purple.shade100,
-                                  child: Text('A${index + 1}', style: const TextStyle(color: AppColors.primary)),
+                                  backgroundColor: AppColors.primary.withOpacity(0.2),
+                                  child: Text('A${index + 1}', style: const TextStyle(color: AppColors.secondary)),
                                 ),
                                 const SizedBox(height: 8),
                                 const Text('Actor Name', style: TextStyle(fontSize: 12)),
