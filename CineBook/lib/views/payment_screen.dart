@@ -107,6 +107,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         splitWithEmails: isSplitPayment ? splitEmails : [],
       );
 
+      final now = DateTime.now();
+      final date = now.toIso8601String().split('T')[0];
+      final time = now.toIso8601String().split('T')[1].substring(0, 8);
+      final authorName = FirebaseAuth.instance.currentUser?.displayName ?? _nameController.text;
+
       // 2. Process secure transaction through Mock Payment Gateway
       final paymentService = PaymentGatewayService();
       await paymentService.processPayment(
@@ -116,6 +121,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         expiry: _expiryController.text,
         cvv: _cvvController.text,
         name: _nameController.text,
+        authorName: authorName,
+        date: date,
+        time: time,
         amount: totalPrice.toDouble(),
       );
 
