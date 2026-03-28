@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/popup_utils.dart';
 import '../viewmodels/auth_viewmodel.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,8 +23,12 @@ class _LoginScreenState extends State<LoginScreen> {
     // Show errors if they exist
     if (authViewModel.errorMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authViewModel.errorMessage!), backgroundColor: AppColors.error),
+        PopupUtils.showCenterPopup(
+          context: context,
+          title: 'Error',
+          message: authViewModel.errorMessage!,
+          icon: Icons.error_outline,
+          color: AppColors.error,
         );
         authViewModel.clearError();
       });
@@ -105,7 +110,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ? null 
                   : () async {
                       if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+                         PopupUtils.showCenterPopup(
+                           context: context,
+                           title: 'Validation Error',
+                           message: 'Please fill all fields',
+                           icon: Icons.warning_amber_rounded,
+                           color: AppColors.secondary,
+                         );
                          return;
                       }
                       final success = await authViewModel.login(
@@ -113,13 +124,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         _passwordController.text.trim()
                       );
                       if (success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Login successful!'), backgroundColor: Colors.green),
+                        await PopupUtils.showCenterPopup(
+                          context: context,
+                          title: 'Success',
+                          message: 'Login successful!',
+                          icon: Icons.check_circle_outline,
+                          color: AppColors.success,
                         );
-                        context.go('/home');
+                        if (mounted) context.go('/home');
                       } else if (!success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Login failed: ${authViewModel.errorMessage ?? "Invalid credentials"}.'), backgroundColor: Colors.red),
+                        PopupUtils.showCenterPopup(
+                          context: context,
+                          title: 'Login Failed',
+                          message: authViewModel.errorMessage ?? "Invalid credentials.",
+                          icon: Icons.error_outline,
+                          color: AppColors.error,
                         );
                       }
                   },

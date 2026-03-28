@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../views/welcome_screen.dart';
 import '../views/login_screen.dart';
 import '../views/signup_screen.dart';
+import '../views/main_screen.dart';
 import '../views/home_screen.dart';
 import '../views/movie_details_screen.dart';
 import '../views/cinema_selector_screen.dart';
@@ -37,6 +38,7 @@ class AppRoutes {
         path: '/signup',
         builder: (context, state) => const SignUpScreen(),
       ),
+<<<<<<< HEAD:lib/core/app_routes.dart
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainScreen(navigationShell: navigationShell);
@@ -75,6 +77,11 @@ class AppRoutes {
             ],
           ),
         ],
+=======
+      GoRoute(
+        path: home,
+        builder: (context, state) => const MainScreen(),
+>>>>>>> pr/4:CineBook/lib/core/app_routes.dart
       ),
       GoRoute(
         path: '/movie/:id',
