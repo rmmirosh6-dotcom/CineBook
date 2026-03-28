@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../core/app_colors.dart';
+import '../core/popup_utils.dart';
 import '../viewmodels/auth_viewmodel.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -23,8 +24,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (authViewModel.errorMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authViewModel.errorMessage!), backgroundColor: AppColors.error),
+        PopupUtils.showCenterPopup(
+          context: context,
+          title: 'Error',
+          message: authViewModel.errorMessage!,
+          icon: Icons.error_outline,
+          color: AppColors.error,
         );
         authViewModel.clearError();
       });
@@ -130,7 +135,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ? null 
                   : () async {
                       if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty) {
-                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields')));
+                         PopupUtils.showCenterPopup(
+                           context: context,
+                           title: 'Validation Error',
+                           message: 'Please fill all required fields',
+                           icon: Icons.warning_amber_rounded,
+                           color: AppColors.secondary,
+                         );
                          return;
                       }
                       final success = await authViewModel.signUp(
@@ -140,13 +151,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         _phoneController.text.trim()
                       );
                       if (success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Account created successfully!'), backgroundColor: Colors.green),
+                        await PopupUtils.showCenterPopup(
+                          context: context,
+                          title: 'Success',
+                          message: 'Account created successfully!',
+                          icon: Icons.check_circle_outline,
+                          color: AppColors.success,
                         );
-                        context.go('/home');
+                        if (mounted) context.go('/home');
                       } else if (!success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Account creation failed: ${authViewModel.errorMessage ?? "Error occurred"}.'), backgroundColor: Colors.red),
+                        PopupUtils.showCenterPopup(
+                          context: context,
+                          title: 'Sign Up Failed',
+                          message: authViewModel.errorMessage ?? "Error occurred.",
+                          icon: Icons.error_outline,
+                          color: AppColors.error,
                         );
                       }
                   },

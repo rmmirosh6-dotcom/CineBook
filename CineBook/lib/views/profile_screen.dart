@@ -5,6 +5,7 @@ import '../core/app_colors.dart';
 import '../models/core_models.dart';
 import '../services/database_service.dart';
 import '../services/auth_service.dart';
+import '../core/popup_utils.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -94,7 +95,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () async {
                           await AuthService().signOut();
                           if (context.mounted) {
-                            context.go('/login');
+                            await PopupUtils.showCenterPopup(
+                              context: context,
+                              title: 'Signed Out',
+                              message: 'You have been successfully signed out.',
+                              icon: Icons.info_outline,
+                              color: AppColors.primary,
+                            );
+                            if (context.mounted) context.go('/login');
                           }
                         },
                         icon: const Icon(Icons.logout, color: Colors.red),
