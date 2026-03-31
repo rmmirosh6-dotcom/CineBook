@@ -276,16 +276,26 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
   }
 
   void _showSplitPaymentDialog(BuildContext context) {
+<<<<<<< HEAD:lib/views/seat_selection_screen.dart
     final int splitCount = _selectedSeats.length - 1;
     final List<TextEditingController> emailControllers = List.generate(
       splitCount,
       (_) => TextEditingController(),
+=======
+    final int seatCount = _selectedSeats.length;
+    final List<TextEditingController> controllers = List.generate(
+      seatCount, 
+      (i) => TextEditingController(
+        text: (i == 0) ? (FirebaseAuth.instance.currentUser?.email ?? '') : ''
+      )
+>>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
     );
     
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+<<<<<<< HEAD:lib/views/seat_selection_screen.dart
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text('Split Payment'),
           content: SingleChildScrollView(
@@ -310,9 +320,52 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
                 }),
               ],
             ),
+=======
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(
+            children: [
+              const Icon(Icons.group_add_rounded, color: AppColors.primary),
+              const SizedBox(width: 12),
+              const Text('Split Payment', style: TextStyle(fontWeight: FontWeight.bold)),
+            ],
+>>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Enter emails for all $seatCount selected seats. Each person will receive an invite to pay their share.',
+                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 20),
+                  ...List.generate(seatCount, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: TextField(
+                        controller: controllers[index],
+                        decoration: InputDecoration(
+                          labelText: index == 0 ? "Your Email (Initiator)" : "Friend ${index}'s Email",
+                          hintText: "example@email.com",
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          prefixIcon: Icon(index == 0 ? Icons.person : Icons.email_outlined, color: AppColors.primary),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
           actions: [
             TextButton(
+<<<<<<< HEAD:lib/views/seat_selection_screen.dart
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel')),
             ElevatedButton(
@@ -325,12 +378,39 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
                     return;
                   }
                   emails.add(email);
+=======
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final emails = controllers.map((c) => c.text.trim()).toList();
+                
+                // Validate all emails
+                for (var email in emails) {
+                  if (email.isEmpty || !email.contains('@')) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please enter valid emails for all seats. (Missing: $email)'))
+                    );
+                    return;
+                  }
+>>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
                 }
+
                 Navigator.pop(context); // Close dialog
                 _processBooking(isSplitPayment: true, splitEmails: emails);
               },
+<<<<<<< HEAD:lib/views/seat_selection_screen.dart
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
               child: const Text('Send Invites', style: TextStyle(color: Colors.white)),
+=======
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text('Send Invites', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+>>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
             ),
           ],
         );
