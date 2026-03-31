@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +24,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _nameController = TextEditingController();
 
   String _displayCardNumber = '****  ****  ****  3456';
-  String _displayName = 'ADUKE MOREWA';
+  String _displayName = 'Samindi Dissanayaka';
   String _displayExpiry = '09/24';
 
   @override
@@ -42,7 +43,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       setState(() {
         _displayName = _nameController.text.isNotEmpty 
             ? _nameController.text.toUpperCase() 
-            : 'ADUKE MOREWA';
+            : 'Samindi Dissanayaka';
       });
     });
     
@@ -80,16 +81,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
       final cinema = widget.checkoutData['cinema'] as Cinema;
       final movieId = widget.checkoutData['movieId'] as String;
       final selectedSeats = widget.checkoutData['selectedSeats'] as List<String>;
-      final isSplitPayment = widget.checkoutData['isSplitPayment'] as bool;
-      final splitEmails = widget.checkoutData['splitEmails'] as List<String>;
-
+      final isSplitPayment = widget.checkoutData['isSplitPayment'] as bool? ?? false;
+      final splitEmails = widget.checkoutData['splitEmails'] as List<String>? ?? [];
+      
       final userId = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
-
       final movieDoc = await FirebaseFirestore.instance.collection('movies').doc(movieId).get();
       if (!movieDoc.exists) throw Exception('Movie not found');
       final movie = Movie.fromFirestore(movieDoc);
 
       final totalPrice = selectedSeats.length * showtime.price;
+      final totalPeople = isSplitPayment ? splitEmails.length : 1;
+      final shareAmount = totalPrice / totalPeople;
 
       final ticketRef = FirebaseFirestore.instance.collection('tickets').doc();
       final ticket = Ticket(
@@ -104,15 +106,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
         isActive: true,
         status: isSplitPayment ? 'Pending Split Payment' : 'Valid',
         isSplitPayment: isSplitPayment,
-        splitWithEmails: isSplitPayment ? splitEmails : [],
+        splitWithEmails: isSplitPayment ? splitEmails.skip(1).toList() : [], // Friends only
       );
 
-      final now = DateTime.now();
-      final date = now.toIso8601String().split('T')[0];
-      final time = now.toIso8601String().split('T')[1].substring(0, 8);
-      final authorName = FirebaseAuth.instance.currentUser?.displayName ?? _nameController.text;
-
-      // 2. Process secure transaction through Mock Payment Gateway
+      // 2. Process secure transaction for the initiator's share
       final paymentService = PaymentGatewayService();
       await paymentService.processPayment(
         ticketId: ticketRef.id,
@@ -121,10 +118,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         expiry: _expiryController.text,
         cvv: _cvvController.text,
         name: _nameController.text,
-        authorName: authorName,
-        date: date,
-        time: time,
-        amount: totalPrice.toDouble(),
+        amount: shareAmount.toDouble(),
       );
 
       // 3. Insert ticket into Firebase database only on bank success!
@@ -156,7 +150,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     final showtime = widget.checkoutData['showtime'] as Showtime;
     final selectedSeats = widget.checkoutData['selectedSeats'] as List<String>;
-    final totalAmount = selectedSeats.length * showtime.price;
+    final isSplitPayment = widget.checkoutData['isSplitPayment'] as bool? ?? false;
+    final splitEmails = widget.checkoutData['splitEmails'] as List<String>? ?? [];
+    
+    final totalPrice = selectedSeats.length * showtime.price;
+    final totalPeople = isSplitPayment ? splitEmails.length : 1;
+    final shareAmount = totalPrice / totalPeople;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -165,6 +164,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Row(
+              children: const [
+                Icon(Icons.movie_rounded, color: AppColors.primary, size: 24),
+                SizedBox(width: 8),
+                Text('CineBook', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 18)),
+              ],
+            ),
+          )
+        ],
       ),
       body: Center(
         child: ConstrainedBox(
@@ -179,13 +190,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     children: [
                       Expanded(flex: 3, child: _buildPaymentForm()),
                       const SizedBox(width: 48),
-                      Expanded(flex: 2, child: _buildOrderSummary(totalAmount)),
+                      Expanded(flex: 2, child: _buildOrderSummary(shareAmount)),
                     ],
                   );
                 }
                 return Column(
                   children: [
-                    _buildOrderSummary(totalAmount),
+                    _buildOrderSummary(shareAmount),
                     const SizedBox(height: 32),
                     _buildPaymentForm(),
                   ],
@@ -426,8 +437,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.memory, color: Colors.yellow.shade600, size: 32),
-              const Icon(Icons.wifi, color: Colors.white70),
+              Row(
+                children: [
+                  Icon(Icons.memory, color: Colors.yellow.shade600, size: 36),
+                  const SizedBox(width: 12),
+                  const Icon(Icons.wifi, color: Colors.white70, size: 28),
+                ],
+              ),
+              Row(
+                children: const [
+                  Icon(Icons.movie_rounded, color: Colors.white, size: 20),
+                  SizedBox(width: 6),
+                  Text('CineBook', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                ],
+              ),
             ],
           ),
           Text(
