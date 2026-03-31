@@ -136,10 +136,9 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: InkWell(
               onTap: () {
-                // Show AR preview
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Opening AR View... (Mock)')),
-                );
+                // Show AR preview with the first selected seat or default to 'C4'
+                final selectedSeat = _selectedSeats.isNotEmpty ? _selectedSeats.first : 'C4';
+                context.push('/ar-view', extra: {'selectedSeat': selectedSeat});
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -278,44 +277,87 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
   }
 
   void _showSplitPaymentDialog(BuildContext context) {
-    final emailController = TextEditingController();
+    final int seatCount = _selectedSeats.length;
+    final List<TextEditingController> controllers = List.generate(
+      seatCount, 
+      (i) => TextEditingController(
+        text: (i == 0) ? (FirebaseAuth.instance.currentUser?.email ?? '') : ''
+      )
+    );
     
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Split Payment'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(
             children: [
-              const Text('Enter the email of the friend you want to split this booking with.', style: TextStyle(fontSize: 14)),
-              const SizedBox(height: 16),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: "Friend's Email",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  prefixIcon: const Icon(Icons.email),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
+              const Icon(Icons.group_add_rounded, color: AppColors.primary),
+              const SizedBox(width: 12),
+              const Text('Split Payment', style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Enter emails for all $seatCount selected seats. Each person will receive an invite to pay their share.',
+                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 20),
+                  ...List.generate(seatCount, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: TextField(
+                        controller: controllers[index],
+                        decoration: InputDecoration(
+                          labelText: index == 0 ? "Your Email (Initiator)" : "Friend ${index}'s Email",
+                          hintText: "example@email.com",
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          prefixIcon: Icon(index == 0 ? Icons.person : Icons.email_outlined, color: AppColors.primary),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            ),
             ElevatedButton(
               onPressed: () {
-                final email = emailController.text.trim();
-                if (email.isEmpty || !email.contains('@')) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid email')));
-                  return;
+                final emails = controllers.map((c) => c.text.trim()).toList();
+                
+                // Validate all emails
+                for (var email in emails) {
+                  if (email.isEmpty || !email.contains('@')) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please enter valid emails for all seats. (Missing: $email)'))
+                    );
+                    return;
+                  }
                 }
+
                 Navigator.pop(context); // Close dialog
-                _processBooking(isSplitPayment: true, splitEmail: email);
+                _processBooking(isSplitPayment: true, splitEmails: emails);
               },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-              child: const Text('Send Invite', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text('Send Invites', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -323,7 +365,7 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
     );
   }
 
-  void _processBooking({required bool isSplitPayment, String splitEmail = ''}) {
+  void _processBooking({required bool isSplitPayment, List<String> splitEmails = const []}) {
     if (widget.bookingData == null) return;
     if (_selectedSeats.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select at least one seat!')));
@@ -334,7 +376,7 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
       ...widget.bookingData!,
       'selectedSeats': _selectedSeats.toList(),
       'isSplitPayment': isSplitPayment,
-      'splitEmail': splitEmail,
+      'splitEmails': splitEmails,
     };
 
     context.push('/payment', extra: checkoutData);
