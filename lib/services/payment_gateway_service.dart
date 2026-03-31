@@ -1,3 +1,4 @@
+s
 import 'encryption_service.dart';
 import '../models/core_models.dart';
 import 'database_service.dart';
@@ -11,13 +12,10 @@ class PaymentGatewayService {
     required String expiry,
     required String cvv,
     required String name,
-    required String authorName,
-    required String date,
-    required String time,
     required double amount,
   }) async {
     // 1. Simulate network and bank processing delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(seconds: 2));
 
     // 2. Validate mock data
     if (cardNumber.replaceAll(' ', '').length < 15 || cvv.length < 3) {
@@ -34,9 +32,6 @@ class PaymentGatewayService {
       id: paymentRef.id,
       ticketId: ticketId,
       userId: userId,
-      authorName: authorName,
-      date: date,
-      time: time,
       amount: amount,
       status: 'Success',
       encryptedCardData: encryptedData,
