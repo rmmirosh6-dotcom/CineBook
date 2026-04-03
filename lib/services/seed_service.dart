@@ -14,7 +14,12 @@ class SeedService {
         rating: 8.5,
         posterUrl: 'assets/images/velocity.png',
         synopsis: 'When a former special ops agent discovers a conspiracy...',
+        director: 'James Cameron',
+        cast: [{'name': 'John Doe', 'role': 'Lead'}, {'name': 'Jane Doe', 'role': 'Support'}],
+        language: 'English',
+        ratingText: 'PG-13',
         isNowShowing: true,
+
       ),
       Movie(
         id: '2',
@@ -24,7 +29,12 @@ class SeedService {
         rating: 9.1,
         posterUrl: 'assets/images/last.png',
         synopsis: 'A detective is forced to confront his past...',
+        director: 'Christopher Nolan',
+        cast: [{'name': 'Tom Hardy', 'role': 'Detective'}, {'name': 'Cillian Murphy', 'role': 'Villain'}],
+        language: 'English',
+        ratingText: 'R',
         isNowShowing: true,
+
       ),
       Movie(
         id: '3',
@@ -34,7 +44,12 @@ class SeedService {
         rating: 7.9,
         posterUrl: 'assets/images/ted.png',
         synopsis: 'Newlywed couple Ted and Tami-Lynn want to have a baby...',
+        director: 'Seth MacFarlane',
+        cast: [{'name': 'Mark Wahlberg', 'role': 'John'}, {'name': 'Seth MacFarlane', 'role': 'Ted'}],
+        language: 'English',
+        ratingText: 'R',
         isNowShowing: true,
+
       ),
       Movie(
         id: '4',
@@ -44,7 +59,12 @@ class SeedService {
         rating: 0.0,
         posterUrl: 'assets/images/upcoming.png',
         synopsis: 'An epic journey to the stars...',
+        director: 'Denis Villeneuve',
+        cast: [{'name': 'Timothée Chalamet', 'role': 'Hero'}, {'name': 'Zendaya', 'role': 'Heroine'}],
+        language: 'English',
+        ratingText: 'PG-13',
         isNowShowing: false,
+
       ),
     ];
 

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../core/app_colors.dart';
-import '../models/core_models.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../core/app_colors.dart';
+import '../models/core_models.dart';
 import '../services/database_service.dart';
 
 class SeatSelectionScreen extends StatefulWidget {
-  final Map<String, dynamic>? bookingData; // Getting booking bundle
+  final Map<String, dynamic>? bookingData;
   const SeatSelectionScreen({Key? key, this.bookingData}) : super(key: key);
 
   @override
@@ -26,11 +25,15 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    const Color logoYellow = Color(0xFFFFC107);
+
     return Scaffold(
       backgroundColor: colorScheme.background,
       appBar: AppBar(
         title: const Text('Select Seats'),
         backgroundColor: colorScheme.surface,
+        elevation: 0,
+        foregroundColor: colorScheme.onSurface,
       ),
       body: Column(
         children: [
@@ -38,10 +41,10 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
           // Screen Curve Marker
           CustomPaint(
             size: const Size(300, 30),
-            painter: ScreenPainter(),
+            painter: ScreenPainter(color: colorScheme.primary),
           ),
           const SizedBox(height: 16),
-          const Text('SCREEN', style: TextStyle(color: AppColors.textSecondary, letterSpacing: 4)),
+          Text('SCREEN', style: TextStyle(color: colorScheme.onSurfaceVariant, letterSpacing: 4, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(height: 32),
           
           Expanded(
@@ -66,48 +69,56 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
                       final col = (index % cols) + 1;
                       final seatId = '$row$col';
 
-                      // Create a gap in the middle
+                      // Create a gap in the middle (Aisle)
                       if (col == 4 || col == 5) {
-                        return const SizedBox.shrink(); // Aisle
+                        return const SizedBox.shrink();
                       }
 
                       final isBooked = _bookedSeats.contains(seatId);
                       final isSelected = _selectedSeats.contains(seatId);
 
-                      return FilterChip(
-                        label: Text(
-                          seatId,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: isBooked
-                                ? colorScheme.onSurfaceVariant.withOpacity(0.5)
-                                : isSelected
-                                    ? colorScheme.onPrimary
-                                    : colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                      return GestureDetector(
+                        onTap: isBooked ? null : () {
+                          setState(() {
+                            if (isSelected) {
+                              _selectedSeats.remove(seatId);
+                            } else {
+                              _selectedSeats.add(seatId);
+                            }
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isBooked 
+                                ? colorScheme.surfaceVariant
+                                : isSelected 
+                                    ? colorScheme.primary 
+                                    : colorScheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isBooked 
+                                  ? Colors.transparent 
+                                  : isSelected 
+                                      ? colorScheme.primary 
+                                      : colorScheme.primary.withOpacity(0.3),
+                            ),
+                            boxShadow: isSelected 
+                                ? [BoxShadow(color: colorScheme.primary.withOpacity(0.3), blurRadius: 4, offset: const Offset(0, 2))]
+                                : [],
                           ),
-                        ),
-                        selected: isSelected,
-                        onSelected: isBooked
-                            ? null
-                            : (bool selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedSeats.add(seatId);
-                                  } else {
-                                    _selectedSeats.remove(seatId);
-                                  }
-                                });
-                              },
-                        showCheckmark: false,
-                        padding: EdgeInsets.zero,
-                        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                        backgroundColor: colorScheme.surface,
-                        selectedColor: colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(
-                            color: isBooked ? Colors.transparent : colorScheme.primary,
+                          child: Center(
+                            child: Text(
+                              seatId,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: isBooked
+                                    ? colorScheme.onSurfaceVariant.withOpacity(0.4)
+                                    : isSelected
+                                        ? colorScheme.onPrimary
+                                        : colorScheme.primary,
+                              ),
+                            ),
                           ),
                         ),
                       );
@@ -119,55 +130,59 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
           ),
           
           // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildLegendItem(colorScheme.surface, 'Available', border: true, borderColor: colorScheme.primary),
-              const SizedBox(width: 16),
-              _buildLegendItem(colorScheme.primary, 'Selected'),
-              const SizedBox(width: 16),
-              _buildLegendItem(colorScheme.surfaceVariant, 'Booked'),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildLegendItem(context, colorScheme.surface, 'Available', border: true, borderColor: colorScheme.primary.withOpacity(0.3)),
+                const SizedBox(width: 24),
+                _buildLegendItem(context, colorScheme.primary, 'Selected'),
+                const SizedBox(width: 24),
+                _buildLegendItem(context, colorScheme.surfaceVariant, 'Booked'),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
           
           // AR Entry Point
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: InkWell(
               onTap: () {
-                // Show AR preview with the first selected seat or default to 'C4'
                 final selectedSeat = _selectedSeats.isNotEmpty ? _selectedSeats.first : 'C4';
                 context.push('/ar-view', extra: {'selectedSeat': selectedSeat});
               },
+              borderRadius: BorderRadius.circular(16),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.tertiary]),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.secondary]),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: colorScheme.primary.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4))],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.view_in_ar, color: colorScheme.onPrimary),
-                    const SizedBox(width: 8),
-                    Text('AR View from My Seat', style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                    const Icon(Icons.view_in_ar_rounded, color: Colors.white, size: 20),
+                    const SizedBox(width: 10),
+                    const Text('AR View from My Seat', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                   ],
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           // Bottom Bar
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: colorScheme.surface,
-              boxShadow: [BoxShadow(color: colorScheme.shadow.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+              boxShadow: [BoxShadow(color: colorScheme.shadow.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -5))],
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             ),
             child: SafeArea(
+              top: false,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -177,10 +192,11 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Total Price', style: TextStyle(color: AppColors.textSecondary)),
+                          Text('Total Price', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 4),
                           Text(
                             'LKR ${(_selectedSeats.length * (widget.bookingData?['showtime']?.price ?? 1000)).toInt()}',
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colorScheme.primary),
                           ),
                         ],
                       ),
@@ -189,9 +205,10 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
                             ? null
                             : () => _showPaymentOptions(context),
                         style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        child: const Text('Proceed'),
+                        child: const Text('Proceed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                     ],
                   ),
@@ -204,70 +221,73 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
     );
   }
 
-  Widget _buildLegendItem(Color color, String label, {bool border = false, Color? borderColor}) {
+  Widget _buildLegendItem(BuildContext context, Color color, String label, {bool border = false, Color? borderColor}) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
-          width: 16,
-          height: 16,
+          width: 14,
+          height: 14,
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(4),
-            border: border ? Border.all(color: borderColor ?? AppColors.primary) : null,
+            border: border ? Border.all(color: borderColor ?? colorScheme.primary) : null,
           ),
         ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
       ],
     );
   }
 
   void _showPaymentOptions(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (context) {
         return Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Payment Mode', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              const Text('Choose how you want to pay for this booking.', style: TextStyle(color: AppColors.textSecondary)),
-              const SizedBox(height: 24),
+              Text('Payment Mode', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
+              const SizedBox(height: 12),
+              Text('Choose how you want to pay for this booking.', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+              const SizedBox(height: 32),
               
-              // Group Split-Payment Option
               if (_selectedSeats.length > 1) ...[
                 OutlinedButton.icon(
                   onPressed: () {
                     Navigator.pop(context);
                     _showSplitPaymentDialog(context);
                   },
-                  icon: const Icon(Icons.group, color: AppColors.primary),
-                  label: const Text('Group Split-Payment', style: TextStyle(color: AppColors.primary)),
+                  icon: Icon(Icons.group_rounded, color: colorScheme.primary),
+                  label: Text('Group Split-Payment', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: AppColors.primary),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    side: BorderSide(color: colorScheme.primary, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
                 const SizedBox(height: 16),
               ],
               
-              // Pay Now
               FilledButton.icon(
                 onPressed: () {
-                  Navigator.pop(context); // Close bottom payment sheet
+                  Navigator.pop(context);
                   _processBooking(isSplitPayment: false);
                 },
-                icon: const Icon(Icons.payment, color: Colors.white),
-                label: const Text('Pay Full Amount', style: TextStyle(color: Colors.white)),
+                icon: const Icon(Icons.payment_rounded),
+                label: const Text('Pay Full Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         );
@@ -276,59 +296,27 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
   }
 
   void _showSplitPaymentDialog(BuildContext context) {
-<<<<<<< HEAD:lib/views/seat_selection_screen.dart
-    final int splitCount = _selectedSeats.length - 1;
-    final List<TextEditingController> emailControllers = List.generate(
-      splitCount,
-      (_) => TextEditingController(),
-=======
+    final colorScheme = Theme.of(context).colorScheme;
     final int seatCount = _selectedSeats.length;
     final List<TextEditingController> controllers = List.generate(
       seatCount, 
       (i) => TextEditingController(
         text: (i == 0) ? (FirebaseAuth.instance.currentUser?.email ?? '') : ''
       )
->>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
     );
     
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-<<<<<<< HEAD:lib/views/seat_selection_screen.dart
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Split Payment'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Enter the emails of the $splitCount friend(s) you want to split this booking with.', style: const TextStyle(fontSize: 14)),
-                const SizedBox(height: 16),
-                ...List.generate(splitCount, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: TextField(
-                      controller: emailControllers[index],
-                      decoration: InputDecoration(
-                        labelText: "Friend ${index + 1}'s Email",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        prefixIcon: const Icon(Icons.email),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                  );
-                }),
-              ],
-            ),
-=======
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           title: Row(
             children: [
-              const Icon(Icons.group_add_rounded, color: AppColors.primary),
+              Icon(Icons.group_add_rounded, color: colorScheme.primary),
               const SizedBox(width: 12),
               const Text('Split Payment', style: TextStyle(fontWeight: FontWeight.bold)),
             ],
->>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -339,21 +327,23 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
                 children: [
                   Text(
                     'Enter emails for all $seatCount selected seats. Each person will receive an invite to pay their share.',
-                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   ...List.generate(seatCount, (index) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: TextField(
                         controller: controllers[index],
+                        style: TextStyle(color: colorScheme.onSurface),
                         decoration: InputDecoration(
                           labelText: index == 0 ? "Your Email (Initiator)" : "Friend ${index}'s Email",
                           hintText: "example@email.com",
+                          labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          prefixIcon: Icon(index == 0 ? Icons.person : Icons.email_outlined, color: AppColors.primary),
+                          prefixIcon: Icon(index == 0 ? Icons.person_rounded : Icons.email_outlined, color: colorScheme.primary),
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
                         ),
                         keyboardType: TextInputType.emailAddress,
                       ),
@@ -365,52 +355,28 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
           ),
           actions: [
             TextButton(
-<<<<<<< HEAD:lib/views/seat_selection_screen.dart
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel')),
-            ElevatedButton(
-              onPressed: () {
-                final List<String> emails = [];
-                for (var controller in emailControllers) {
-                  final email = controller.text.trim();
-                  if (email.isEmpty || !email.contains('@')) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid emails for everyone')));
-                    return;
-                  }
-                  emails.add(email);
-=======
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+              child: Text('Cancel', style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
             ),
-            ElevatedButton(
+            FilledButton(
               onPressed: () {
                 final emails = controllers.map((c) => c.text.trim()).toList();
-                
-                // Validate all emails
                 for (var email in emails) {
                   if (email.isEmpty || !email.contains('@')) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Please enter valid emails for all seats. (Missing: $email)'))
+                      SnackBar(content: Text('Please enter valid emails for ALL seats. (Invalid: $email)'))
                     );
                     return;
                   }
->>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
                 }
-
-                Navigator.pop(context); // Close dialog
+                Navigator.pop(context);
                 _processBooking(isSplitPayment: true, splitEmails: emails);
               },
-<<<<<<< HEAD:lib/views/seat_selection_screen.dart
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-              child: const Text('Send Invites', style: TextStyle(color: Colors.white)),
-=======
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+              style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: const Text('Send Invites', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
->>>>>>> pr/5:CineBook/lib/views/seat_selection_screen.dart
+              child: const Text('Send Invites', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -437,18 +403,31 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
 }
 
 class ScreenPainter extends CustomPainter {
+  final Color color;
+  ScreenPainter({required this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.primary.withOpacity(0.15)
+      ..color = color.withOpacity(0.2)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
 
     final path = Path();
     path.moveTo(0, size.height);
     path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
 
     canvas.drawPath(path, paint);
+    
+    // Draw a subtle shadow under the curve
+    final shadowPaint = Paint()
+      ..color = color.withOpacity(0.05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      
+    canvas.drawPath(path, shadowPaint);
   }
 
   @override

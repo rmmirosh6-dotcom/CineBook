@@ -8,7 +8,12 @@ class Movie {
   final double rating;
   final String posterUrl;
   final String synopsis;
+  final String director;
+  final List<Map<String, String>> cast;
+  final String language;
+  final String ratingText;
   final bool isNowShowing;
+
 
   Movie({
     required this.id,
@@ -18,7 +23,12 @@ class Movie {
     required this.rating,
     required this.posterUrl,
     required this.synopsis,
+    required this.director,
+    required this.cast,
+    required this.language,
+    required this.ratingText,
     required this.isNowShowing,
+
   });
 
   factory Movie.fromFirestore(DocumentSnapshot doc) {
@@ -35,7 +45,13 @@ class Movie {
       rating: (data['rating'] ?? 0.0).toDouble(),
       posterUrl: data['posterUrl'] ?? '',
       synopsis: data['synopsis'] ?? '',
+      director: data['director'] ?? 'Unknown Director',
+      cast: List<Map<String, String>>.from(
+          (data['cast'] as List? ?? []).map((e) => Map<String, String>.from(e))),
+      language: data['language'] ?? 'English',
+      ratingText: data['ratingText'] ?? 'G',
       isNowShowing: data['isNowShowing'] ?? false,
+
     );
   }
 
@@ -47,7 +63,12 @@ class Movie {
       'rating': rating,
       'posterUrl': posterUrl,
       'synopsis': synopsis,
+      'director': director,
+      'cast': cast,
+      'language': language,
+      'ratingText': ratingText,
       'isNowShowing': isNowShowing,
+
     };
   }
 }

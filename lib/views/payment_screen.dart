@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../core/app_colors.dart';
-import '../models/core_models.dart';
-import '../services/database_service.dart';
-import '../services/payment_gateway_service.dart';
+import 'package:cinebook/core/app_colors.dart';
+import 'package:cinebook/models/core_models.dart';
+import 'package:cinebook/services/database_service.dart';
+import 'package:cinebook/services/payment_gateway_service.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Map<String, dynamic> checkoutData;
@@ -29,7 +29,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-    // Add real-time listeners for dynamic Virtual Card rendering
     _cardNumberController.addListener(() {
       setState(() {
         _displayCardNumber = _cardNumberController.text.isNotEmpty 
@@ -65,7 +64,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<void> _processFinalPayment() async {
-    // 1. Strict Form Validation checks before networking
     if (!_formKey.currentState!.validate()) {
       return; 
     }
@@ -81,7 +79,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       final movieId = widget.checkoutData['movieId'] as String;
       final selectedSeats = widget.checkoutData['selectedSeats'] as List<String>;
       final isSplitPayment = widget.checkoutData['isSplitPayment'] as bool;
-      final splitEmail = widget.checkoutData['splitEmail'] as String;
+      final splitEmails = widget.checkoutData['splitEmails'] as List<String>? ?? [];
 
       final userId = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
 
@@ -104,10 +102,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         isActive: true,
         status: isSplitPayment ? 'Pending Split Payment' : 'Valid',
         isSplitPayment: isSplitPayment,
-        splitWithEmails: isSplitPayment ? [splitEmail] : [],
+        splitWithEmails: isSplitPayment ? splitEmails : [],
       );
 
-      // 2. Process secure transaction through Mock Payment Gateway
       final paymentService = PaymentGatewayService();
       await paymentService.processPayment(
         ticketId: ticketRef.id,
@@ -119,11 +116,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
         amount: totalPrice.toDouble(),
       );
 
-      // 3. Insert ticket into Firebase database only on bank success!
       await DatabaseService().bookTicket(ticket);
 
       if (mounted) {
-        Navigator.pop(context); // remove loading dialog
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isSplitPayment
@@ -136,7 +132,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // remove loading dialog
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Bank Declined: $e'), backgroundColor: Colors.red),
         );
@@ -170,13 +166,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     children: [
                       Expanded(flex: 3, child: _buildPaymentForm()),
                       const SizedBox(width: 48),
-                      Expanded(flex: 2, child: _buildOrderSummary(totalAmount)),
+                      Expanded(flex: 2, child: _buildOrderSummary(totalAmount.toDouble())),
                     ],
                   );
                 }
                 return Column(
                   children: [
-                    _buildOrderSummary(totalAmount),
+                    _buildOrderSummary(totalAmount.toDouble()),
                     const SizedBox(height: 32),
                     _buildPaymentForm(),
                   ],
@@ -355,10 +351,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('You have to Pay', style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant)),
+                Text('You have to Pay', style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant)),
                 Text(
                   'LKR ${totalAmount.toInt()}',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                 ),
               ],
             ),

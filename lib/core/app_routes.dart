@@ -38,7 +38,6 @@ class AppRoutes {
         path: '/signup',
         builder: (context, state) => const SignUpScreen(),
       ),
-<<<<<<< HEAD:lib/core/app_routes.dart
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainScreen(navigationShell: navigationShell);
@@ -77,11 +76,6 @@ class AppRoutes {
             ],
           ),
         ],
-=======
-      GoRoute(
-        path: home,
-        builder: (context, state) => const MainScreen(),
->>>>>>> pr/4:CineBook/lib/core/app_routes.dart
       ),
       GoRoute(
         path: '/movie/:id',
@@ -122,10 +116,6 @@ class AppRoutes {
           final checkoutData = state.extra as Map<String, dynamic>;
           return PaymentScreen(checkoutData: checkoutData);
         },
-      ),
-      GoRoute(
-        path: '/profile',
-        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );

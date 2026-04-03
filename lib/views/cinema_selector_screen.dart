@@ -13,21 +13,15 @@ class CinemaSelectorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const Color primaryPurple = Color(0xFFA020F0);
     const Color headerPurple = Color(0xFF5B0A95);
-    const Color logoYellow = Color(0xFFFFC107);
-    const Color infoGrey = Color(0xFF6B7280);
-
     final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-<<<<<<< HEAD:lib/views/cinema_selector_screen.dart
       backgroundColor: colorScheme.background,
-=======
-      backgroundColor: const Color(0xFFF9FAFB),
->>>>>>> pr/5:CineBook/lib/views/cinema_selector_screen.dart
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [headerPurple, primaryPurple],
+              colors: [headerPurple, colorScheme.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -37,8 +31,8 @@ class CinemaSelectorScreen extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('Velocity Strike', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-            Text('Action / Thriller', style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white70)),
+            Text('Select Cinema', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text('Choose your preferred location', style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white70)),
           ],
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -47,18 +41,14 @@ class CinemaSelectorScreen extends StatelessWidget {
         children: [
           // Date Picker
           Container(
-<<<<<<< HEAD:lib/views/cinema_selector_screen.dart
-            color: colorScheme.surface,
-=======
->>>>>>> pr/5:CineBook/lib/views/cinema_selector_screen.dart
             padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [headerPurple, primaryPurple],
+                colors: [headerPurple, colorScheme.primary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
@@ -66,9 +56,9 @@ class CinemaSelectorScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildDateChip('Today', true),
-                _buildDateChip('Tomorrow', false),
-                _buildDateChip('Mar 19', false),
+                _buildDateChip(context, 'Today', true),
+                _buildDateChip(context, 'Tomorrow', false),
+                _buildDateChip(context, 'Mar 19', false),
               ],
             ),
           ),
@@ -78,18 +68,18 @@ class CinemaSelectorScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             child: Row(
               children: [
-                const Icon(Icons.location_on_outlined, size: 20, color: primaryPurple),
+                Icon(Icons.location_on_outlined, size: 20, color: colorScheme.primary),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Colombo, Sri Lanka',
-                    style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
+                    style: TextStyle(fontWeight: FontWeight.w500, color: colorScheme.onSurface),
                   ),
                 ),
                 TextButton.icon(
                   onPressed: () => context.push('/cinema-map'),
-                  icon: const Icon(Icons.near_me, size: 16, color: primaryPurple),
-                  label: const Text('Near me', style: TextStyle(color: primaryPurple, fontWeight: FontWeight.bold)),
+                  icon: Icon(Icons.near_me, size: 16, color: colorScheme.primary),
+                  label: Text('Near me', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -104,11 +94,23 @@ class CinemaSelectorScreen extends StatelessWidget {
                 }
                 final liveCinemas = snapshot.data ?? [];
                 if (liveCinemas.isEmpty) {
-                  return const Center(child: Text('No cinemas found. Please seed the database from Home.'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('No cinemas found.'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => context.go('/home'),
+                          child: const Text('Go Home to Seed Data'),
+                        ),
+                      ],
+                    ),
+                  );
                 }
                 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                   itemCount: liveCinemas.length,
                   itemBuilder: (context, index) {
                     return _buildCinemaCard(context, liveCinemas[index]);
@@ -122,16 +124,8 @@ class CinemaSelectorScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDateChip(String label, bool isSelected) {
-<<<<<<< HEAD:lib/views/cinema_selector_screen.dart
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (bool selected) {},
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: const StadiumBorder(),
-=======
-    const Color primaryPurple = Color(0xFFA020F0);
+  Widget _buildDateChip(BuildContext context, String label, bool isSelected) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -141,31 +135,30 @@ class CinemaSelectorScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.calendar_today_outlined, size: 16, color: isSelected ? primaryPurple : Colors.white),
+          Icon(Icons.calendar_today_outlined, size: 16, color: isSelected ? colorScheme.primary : Colors.white),
           const SizedBox(width: 8),
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? primaryPurple : Colors.white,
+              color: isSelected ? colorScheme.primary : Colors.white,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               fontSize: 14,
             ),
           ),
         ],
       ),
->>>>>>> pr/5:CineBook/lib/views/cinema_selector_screen.dart
     );
   }
 
   Widget _buildCinemaCard(BuildContext context, Cinema cinema) {
-    const Color primaryPurple = Color(0xFFA020F0);
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))
+          BoxShadow(color: colorScheme.shadow.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))
         ],
       ),
       child: Padding(
@@ -180,51 +173,33 @@ class CinemaSelectorScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(cinema.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      Text(cinema.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                       const SizedBox(height: 6),
-                      Text(cinema.location, style: const TextStyle(color: Colors.black45, fontSize: 13)),
+                      Text(cinema.location, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
                     ],
                   ),
                 ),
-<<<<<<< HEAD:lib/views/cinema_selector_screen.dart
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.location_on, size: 14, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text('${cinema.distanceKm} km', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                    ],
-=======
                 GestureDetector(
                   onTap: () => context.push('/cinema-map', extra: cinema),
-                  child: Tooltip(
-                    message: 'View on Map',
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.location_on, size: 14, color: Colors.black45),
-                          const SizedBox(width: 4),
-                          Text('${cinema.distanceKm} km', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black45)),
-                        ],
-                      ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceVariant.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(10),
                     ),
->>>>>>> pr/5:CineBook/lib/views/cinema_selector_screen.dart
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on, size: 14, color: colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text('${cinema.distanceKm} km', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            const Text('Showtimes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54)),
+            Text('Showtimes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurfaceVariant)),
             const SizedBox(height: 16),
             Wrap(
               spacing: 12,
@@ -238,13 +213,7 @@ class CinemaSelectorScreen extends StatelessWidget {
   }
 
   Widget _buildShowtimeCard(BuildContext context, Cinema cinema, Showtime showtime) {
-<<<<<<< HEAD:lib/views/cinema_selector_screen.dart
     final colorScheme = Theme.of(context).colorScheme;
-=======
-    const Color primaryPurple = Color(0xFFA020F0);
-    const Color logoYellow = Color(0xFFFFC107);
-
->>>>>>> pr/5:CineBook/lib/views/cinema_selector_screen.dart
     return GestureDetector(
       onTap: () {
         context.push('/seat-selection', extra: {
@@ -257,13 +226,9 @@ class CinemaSelectorScreen extends StatelessWidget {
         width: (MediaQuery.of(context).size.width - 92) / 2, // 2 items per row
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-<<<<<<< HEAD:lib/views/cinema_selector_screen.dart
           color: colorScheme.surface,
-          border: Border.all(color: colorScheme.outlineVariant),
-=======
->>>>>>> pr/5:CineBook/lib/views/cinema_selector_screen.dart
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: colorScheme.outlineVariant),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +238,7 @@ class CinemaSelectorScreen extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(color: Colors.black87),
+                    style: TextStyle(color: colorScheme.onSurface),
                     children: [
                       TextSpan(text: showtime.time.split(' ')[0], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const TextSpan(text: ' '),
@@ -284,37 +249,19 @@ class CinemaSelectorScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDBEAFE),
+                    color: colorScheme.tertiaryContainer,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     showtime.format,
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF)),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.onTertiaryContainer),
                   ),
                 ),
               ],
             ),
-<<<<<<< HEAD:lib/views/cinema_selector_screen.dart
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: showtime.format == 'IMAX' ? colorScheme.tertiaryContainer : colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                showtime.format,
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text('LKR ${showtime.price.toInt()}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-            const SizedBox(height: 4),
-=======
             const SizedBox(height: 10),
-            Text('LKR ${showtime.price.toInt()}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black54)),
+            Text('LKR ${showtime.price.toInt()}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colorScheme.onSurfaceVariant)),
             const SizedBox(height: 6),
->>>>>>> pr/5:CineBook/lib/views/cinema_selector_screen.dart
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -323,14 +270,14 @@ class CinemaSelectorScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: showtime.isFillingFast ? const Color(0xFFDC2626) : const Color(0xFF059669),
+                    color: showtime.isFillingFast ? Colors.red : Colors.green,
                   ),
                 ),
                 if (showtime.isFillingFast)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(4)),
-                    child: const Text('Filling Fast', style: TextStyle(color: Color(0xFFDC2626), fontSize: 8, fontWeight: FontWeight.bold)),
+                    decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                    child: const Text('Filling Fast', style: TextStyle(color: Colors.red, fontSize: 8, fontWeight: FontWeight.bold)),
                   ),
               ],
             ),

@@ -15,10 +15,10 @@ class HomeScreen extends StatelessWidget {
     const Color primaryPurple = Color(0xFFA020F0);
     const Color headerPurple = Color(0xFF5B0A95);
     const Color logoYellow = Color(0xFFFFC107);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-<<<<<<< HEAD:lib/views/home_screen.dart
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: colorScheme.background,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -36,37 +36,9 @@ class HomeScreen extends StatelessWidget {
           }
         },
         child: const Icon(Icons.download),
-        backgroundColor: AppColors.primary,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
-      appBar: AppBar(
-        title: const Text('CineBook'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: () async {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Re-seeding Cinemas...')));
-              await SeedService().seedDatabase();
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cinemas Re-seeded!')));
-            },
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(70),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search movies, genres...',
-                prefixIcon: const Icon(Icons.search),
-                contentPadding: const EdgeInsets.all(0),
-              ),
-            ),
-          ),
-        ),
-      ),
-=======
-      backgroundColor: const Color(0xFFF9FAFB),
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
       body: Consumer<HomeViewModel>(
         builder: (context, viewModel, child) {
           return CustomScrollView(
@@ -80,13 +52,13 @@ class HomeScreen extends StatelessWidget {
                     left: 20,
                     right: 20,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [headerPurple, primaryPurple],
+                      colors: [headerPurple, colorScheme.primary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(24),
                       bottomRight: Radius.circular(24),
                     ),
@@ -124,16 +96,16 @@ class HomeScreen extends StatelessWidget {
                       Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const TextField(
+                        child: TextField(
                           decoration: InputDecoration(
                             hintText: 'Search movies, genres...',
-                            hintStyle: TextStyle(color: Colors.black38, fontSize: 14),
-                            prefixIcon: Icon(Icons.search, color: Colors.black38, size: 20),
+                            hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.5), fontSize: 14),
+                            prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant.withOpacity(0.5), size: 20),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 15),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 15),
                           ),
                         ),
                       ),
@@ -148,19 +120,19 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
                   child: Row(
                     children: [
-                      const Icon(Icons.location_on, color: primaryPurple, size: 18),
+                      Icon(Icons.location_on, color: colorScheme.primary, size: 18),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Colombo, Sri Lanka',
-                          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
+                          style: TextStyle(fontWeight: FontWeight.w500, color: colorScheme.onSurface),
                         ),
                       ),
                       TextButton(
                         onPressed: () {},
-                        child: const Text(
+                        child: Text(
                           'Change',
-                          style: TextStyle(color: primaryPurple, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -204,23 +176,14 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildToggleSwitch(BuildContext context, HomeViewModel viewModel) {
-<<<<<<< HEAD:lib/views/home_screen.dart
     final colorScheme = Theme.of(context).colorScheme;
-=======
-    const Color primaryPurple = Color(0xFFA020F0);
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-<<<<<<< HEAD:lib/views/home_screen.dart
           color: colorScheme.surfaceVariant.withOpacity(0.4),
           borderRadius: BorderRadius.circular(24),
-=======
-          color: const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(12),
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
         ),
         child: Row(
           children: [
@@ -230,31 +193,19 @@ class HomeScreen extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-<<<<<<< HEAD:lib/views/home_screen.dart
                     color: viewModel.showNowShowing ? colorScheme.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: viewModel.showNowShowing
                         ? [BoxShadow(color: colorScheme.shadow.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))]
-=======
-                    color: viewModel.showNowShowing ? Colors.white : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: viewModel.showNowShowing
-                        ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))]
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
                         : [],
                   ),
                   child: Center(
                     child: Text(
                       'Now Showing',
                       style: TextStyle(
-<<<<<<< HEAD:lib/views/home_screen.dart
                         fontWeight: viewModel.showNowShowing ? FontWeight.w600 : FontWeight.w500,
                         color: viewModel.showNowShowing ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-=======
-                        fontWeight: viewModel.showNowShowing ? FontWeight.bold : FontWeight.w600,
-                        color: viewModel.showNowShowing ? Colors.black87 : Colors.black45,
                         fontSize: 14,
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
                       ),
                     ),
                   ),
@@ -267,31 +218,19 @@ class HomeScreen extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-<<<<<<< HEAD:lib/views/home_screen.dart
                     color: !viewModel.showNowShowing ? colorScheme.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: !viewModel.showNowShowing
                         ? [BoxShadow(color: colorScheme.shadow.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))]
-=======
-                    color: !viewModel.showNowShowing ? Colors.white : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: !viewModel.showNowShowing
-                        ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))]
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
                         : [],
                   ),
                   child: Center(
                     child: Text(
                       'Upcoming',
                       style: TextStyle(
-<<<<<<< HEAD:lib/views/home_screen.dart
                         fontWeight: !viewModel.showNowShowing ? FontWeight.w600 : FontWeight.w500,
                         color: !viewModel.showNowShowing ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-=======
-                        fontWeight: !viewModel.showNowShowing ? FontWeight.bold : FontWeight.w600,
-                        color: !viewModel.showNowShowing ? Colors.black87 : Colors.black45,
                         fontSize: 14,
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
                       ),
                     ),
                   ),
@@ -305,45 +244,31 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildMovieCard(BuildContext context, Movie movie) {
-<<<<<<< HEAD:lib/views/home_screen.dart
     final colorScheme = Theme.of(context).colorScheme;
-=======
     const Color logoYellow = Color(0xFFFFC107);
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
+    
     return GestureDetector(
       onTap: () {
         context.push('/movie/${movie.id}');
       },
-<<<<<<< HEAD:lib/views/home_screen.dart
       child: Card(
-        // MD3 card automatically applies shape, colors, and subtle elevation from AppBarTheme/CardTheme
-=======
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
+        elevation: 2,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Stack(
                 children: [
-<<<<<<< HEAD:lib/views/home_screen.dart
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceVariant,
                       image: DecorationImage(
-                        image: AssetImage(movie.posterUrl),
+                        image: movie.posterUrl.startsWith('http') 
+                          ? NetworkImage(movie.posterUrl) as ImageProvider 
+                          : AssetImage(movie.posterUrl),
                         fit: BoxFit.cover,
                         onError: (_, __) {}, 
                       ),
@@ -355,7 +280,7 @@ class HomeScreen extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.secondary,
+                        color: logoYellow,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
                       ),
@@ -371,42 +296,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-=======
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: Image.network(
-                      movie.posterUrl,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: Colors.grey.shade200,
-                        child: const Center(child: Icon(Icons.movie, color: Colors.black12, size: 40)),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: logoYellow,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.star, size: 12, color: Colors.black),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${movie.rating}/10',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
                 ],
               ),
             ),
@@ -417,40 +306,25 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Text(
                     movie.title,
-<<<<<<< HEAD:lib/views/home_screen.dart
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSurface),
-=======
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: colorScheme.onSurface),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     movie.genre,
-<<<<<<< HEAD:lib/views/home_screen.dart
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.access_time, size: 14, color: AppColors.primary),
+                      Icon(Icons.access_time, size: 14, color: colorScheme.primary),
                       const SizedBox(width: 4),
                       Text(
                         movie.duration,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
-=======
-                    style: const TextStyle(color: Colors.black45, fontSize: 11),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 12, color: Colors.black45),
-                      const SizedBox(width: 4),
-                      Text(
-                        movie.duration,
-                        style: const TextStyle(color: Colors.black45, fontSize: 11),
->>>>>>> pr/5:CineBook/lib/views/home_screen.dart
+                        style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
