@@ -15,6 +15,7 @@ class HomeViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get showNowShowing => _showNowShowing;
   List<Movie> get currentMovies => _allMovies.where((m) => m.isNowShowing == _showNowShowing).toList();
+  List<Movie> get nowShowingMovies => _allMovies.where((m) => m.isNowShowing).toList();
 
   HomeViewModel() {
     _listenToMovies();

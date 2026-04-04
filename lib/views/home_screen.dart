@@ -5,10 +5,24 @@ import '../core/app_colors.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../models/core_models.dart';
 import '../services/seed_service.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'cinema_map_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +56,7 @@ class HomeScreen extends StatelessWidget {
       body: Consumer<HomeViewModel>(
         builder: (context, viewModel, child) {
           return CustomScrollView(
+            controller: _scrollController,
             slivers: [
               // Purple Header with Search
               SliverToBoxAdapter(
@@ -139,6 +154,51 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Watch Trailer Section
+              if (viewModel.nowShowingMovies.isNotEmpty) ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Watch Trailer',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            'See all',
+                            style: TextStyle(color: colorScheme.primary, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 160,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: viewModel.nowShowingMovies.length,
+                      itemBuilder: (context, index) {
+                        final movie = viewModel.nowShowingMovies[index];
+                        return _buildTrailerCard(context, movie);
+                      },
+                    ),
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              ],
 
               // Now Showing / Upcoming Toggle
               SliverToBoxAdapter(
@@ -329,6 +389,119 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrailerCard(BuildContext context, Movie movie) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return GestureDetector(
+      onTap: () {
+        if (movie.youtubeVideoId.isNotEmpty) {
+          _showTrailerDialog(context, movie);
+        } else {
+          context.push('/movie/${movie.id}');
+        }
+      },
+      child: Container(
+        width: 280,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: Card(
+          elevation: 2,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: movie.trailerImageUrl.startsWith('http') 
+                      ? NetworkImage(movie.trailerImageUrl) as ImageProvider 
+                      : AssetImage(movie.trailerImageUrl),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+              ),
+              const Center(
+                child: CircleAvatar(
+                  backgroundColor: Colors.white24,
+                  child: Icon(Icons.play_arrow, color: Colors.white, size: 30),
+                ),
+              ),
+              Positioned(
+                bottom: 12,
+                left: 12,
+                child: Text(
+                  movie.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    shadows: [Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 1))],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTrailerDialog(BuildContext context, Movie movie) {
+    final controller = YoutubePlayerController.fromVideoId(
+      videoId: movie.youtubeVideoId,
+      autoPlay: true,
+      params: const YoutubePlayerParams(
+        showFullscreenButton: true,
+        mute: false,
+      ),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.black,
+        contentPadding: EdgeInsets.zero,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              children: [
+                YoutubePlayer(
+                  controller: controller,
+                  aspectRatio: 16 / 9,
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Trailer: ${movie.title}',
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],

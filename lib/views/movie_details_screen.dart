@@ -15,15 +15,18 @@ class MovieDetailsScreen extends StatefulWidget {
 }
 
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
-  late YoutubePlayerController _controller;
+  YoutubePlayerController? _controller;
   bool _isPlayingTrailer = false;
 
   @override
   void initState() {
     super.initState();
-    // Default video ID
+  }
+
+  void _initializePlayer(String videoId) {
+    if (_controller != null) return;
     _controller = YoutubePlayerController.fromVideoId(
-      videoId: 'kgv8jf_8dm0',
+      videoId: videoId,
       autoPlay: true,
       params: const YoutubePlayerParams(
         showControls: true,
@@ -35,7 +38,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   @override
   void dispose() {
-    _controller.close();
+    _controller?.close();
     super.dispose();
   }
 
@@ -130,13 +133,19 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                       ),
                     ),
                   ),
-                  // Watch Trailer Button
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          _isPlayingTrailer = true;
-                        });
+                        if (movie.youtubeVideoId.isNotEmpty) {
+                          _initializePlayer(movie.youtubeVideoId);
+                          setState(() {
+                            _isPlayingTrailer = true;
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Trailer not available for this movie.')),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: logoYellow,
@@ -154,9 +163,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                       ),
                     ),
                   ),
-                ] else
+                ] else if (_controller != null)
                   YoutubePlayer(
-                    controller: _controller,
+                    controller: _controller!,
                     aspectRatio: 16 / 9,
                   ),
               ],

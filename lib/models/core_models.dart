@@ -13,6 +13,8 @@ class Movie {
   final String language;
   final String ratingText;
   final bool isNowShowing;
+  final String trailerImageUrl;
+  final String youtubeVideoId;
 
 
   Movie({
@@ -28,7 +30,8 @@ class Movie {
     required this.language,
     required this.ratingText,
     required this.isNowShowing,
-
+    this.trailerImageUrl = '',
+    this.youtubeVideoId = '',
   });
 
   factory Movie.fromFirestore(DocumentSnapshot doc) {
@@ -51,7 +54,8 @@ class Movie {
       language: data['language'] ?? 'English',
       ratingText: data['ratingText'] ?? 'G',
       isNowShowing: data['isNowShowing'] ?? false,
-
+      trailerImageUrl: data['trailerImageUrl'] ?? '',
+      youtubeVideoId: data['youtubeVideoId'] ?? '',
     );
   }
 
@@ -68,7 +72,8 @@ class Movie {
       'language': language,
       'ratingText': ratingText,
       'isNowShowing': isNowShowing,
-
+      'trailerImageUrl': trailerImageUrl,
+      'youtubeVideoId': youtubeVideoId,
     };
   }
 }
