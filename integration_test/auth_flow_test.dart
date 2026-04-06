@@ -7,23 +7,36 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Authentication Flow Integration Tests', () {
-    testWidgets('verify login validation and guest bypass', (tester) async {
+    testWidgets('verify welcome screen and login navigation', (tester) async {
       app.main();
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Find the Guest login option
-      final guestButton = find.text('Continue as Guest');
+      // The Welcome Screen has 'Browse as Guest' (not 'Continue as Guest')
+      final guestButton = find.text('Browse as Guest');
       expect(guestButton, findsOneWidget);
 
-      // We won't test hard Firebase login here directly to prevent leaking credentials in test scripts,
-      // but we will test that validation appears
-      final loginButton = find.text('Login');
-      if (loginButton.evaluate().isNotEmpty) {
-        await tester.tap(loginButton);
-        await tester.pumpAndSettle();
+      // The welcome screen also has 'Get Started' to go to login
+      final getStartedButton = find.text('Get Started');
+      expect(getStartedButton, findsOneWidget);
 
-        // Validating that there is error handling shown (either a SnackBar or inline text)
-        expect(find.byType(SnackBar), findsWidgets);
+      // Tap 'Get Started' to navigate to Login screen
+      await tester.tap(getStartedButton);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      // Verify Login screen loaded by finding the Login button and email field
+      final loginButton = find.text('Login');
+      expect(loginButton, findsWidgets); // Login tab + Login button
+
+      // Tap Login without credentials to trigger validation
+      // Find the FilledButton specifically (the submit button)
+      final filledButtons = find.byType(FilledButton);
+      if (filledButtons.evaluate().isNotEmpty) {
+        await tester.tap(filledButtons.first);
+        await tester.pumpAndSettle(const Duration(seconds: 2));
+
+        // The login screen shows a center popup with 'Validation Error' 
+        // title and 'Please fill all fields' message when fields are empty
+        expect(find.text('Please fill all fields'), findsOneWidget);
       }
     });
   });

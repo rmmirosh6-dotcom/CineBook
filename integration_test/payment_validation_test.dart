@@ -32,13 +32,19 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final payButton = find.text('Pay LKR 2000.00');
+      // The actual button text in payment_screen.dart is 'Pay Now'
+      final payButton = find.text('Pay Now');
       expect(payButton, findsOneWidget);
 
       await tester.tap(payButton);
       await tester.pumpAndSettle();
 
-      expect(find.text('Required'), findsWidgets);
+      // Validation messages from payment_screen.dart validators:
+      // Name: 'Please enter the exact name on card'
+      // Card: 'Please enter a valid 16-digit card number'
+      // Expiry: 'Invalid Expiry'
+      // CVV: 'Invalid CVV'
+      expect(find.textContaining('Please enter'), findsWidgets);
     });
   });
 }
